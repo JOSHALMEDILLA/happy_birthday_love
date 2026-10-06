@@ -1,0 +1,661 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kim's Birthday Folder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&family=Figtree:wght@500;700&family=Gloock&display=swap">
+<style>
+/* Birthday folder: open the cover, play the song, count down, and reveal the greetings. */
+:root {
+  --desk: #4a1d3f;
+  --desk-glow: #6c2b57;
+  --folder: #f4b8c6;
+  --folder-deep: #e596ab;
+  --paper: #fffaf6;
+  --ink: #3a1530;
+  --berry: #7d1d4f;
+  --gold: #e9b44c;
+  --font-display: 'Gloock', Georgia, serif;
+  --font-body: 'Figtree', system-ui, sans-serif;
+  --font-hand: 'Caveat', 'Segoe Script', cursive;
+  color-scheme: light;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
+img { max-width: 100%; }
+html { height: 100%; }
+body {
+  margin: 0;
+  min-height: 100%;
+  display: grid;
+  place-items: center;
+  padding-block: 2rem;
+  padding-inline: 16px;
+  background-color: var(--desk);
+  background-image: radial-gradient(120% 90% at 50% 0%, var(--desk-glow), var(--desk) 62%);
+  color: var(--paper);
+  font-family: var(--font-body);
+}
+
+.stage {
+  width: 100%;
+  max-width: 23rem;
+  display: grid;
+  gap: 1.5rem;
+  justify-items: center;
+  overflow-x: clip;
+  padding-top: 1.8rem;
+}
+
+.scene {
+  width: 100%;
+  aspect-ratio: 5 / 8;
+  position: relative;
+  perspective: 1600px;
+  container-type: inline-size;
+}
+.folder { position: absolute; inset: 0; }
+
+.back {
+  position: absolute;
+  inset: 5% 0 0 0;
+  background: var(--folder-deep);
+  border-radius: 0 0.9rem 0.9rem 0.9rem;
+  box-shadow: 0 1.6rem 2.2rem -0.8rem rgba(20, 5, 20, 0.55);
+}
+.back::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 100%;
+  width: 36%;
+  height: 1.6rem;
+  background: var(--folder-deep);
+  border-radius: 0.7rem 0.7rem 0 0;
+}
+
+/* Paper and its pages */
+.paper {
+  position: absolute;
+  inset: 7% 5% 3% 5%;
+  z-index: 2;
+  background: var(--paper);
+  color: var(--ink);
+  border-radius: 0.4rem;
+  box-shadow: 0 0.2rem 0.7rem rgba(40, 10, 35, 0.25);
+  container-type: inline-size;
+  display: block;
+  padding: 14cqi 8cqi 7cqi;
+  overflow: hidden;
+  transition: transform 1s cubic-bezier(0.3, 0.7, 0.2, 1) 0.35s;
+  outline: none;
+}
+.paper::before {
+  content: "";
+  position: absolute;
+  inset: 3.5cqi;
+  border: 1px solid var(--folder);
+  border-radius: 0.25rem;
+  pointer-events: none;
+}
+.is-open .paper { transform: translateY(-1.5%) rotate(-0.8deg); }
+
+.leaves { width: 100%; height: 100%; min-height: 0; position: relative; }
+.leaf {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  justify-items: center;
+  align-content: center;
+  gap: 4cqi;
+  text-align: center;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateX(4cqi);
+  transition: opacity 0.35s ease, transform 0.35s ease, visibility 0s linear 0.35s;
+}
+.leaf.on {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  transition: opacity 0.45s ease 0.15s, transform 0.45s ease 0.15s, visibility 0s;
+}
+
+.pageno {
+  font-size: clamp(0.7rem, 3.6cqi, 0.85rem);
+  font-weight: 700;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--berry);
+}
+.pageno.page-one { text-transform: none; letter-spacing: 0.06em; }
+
+/* Cute frame: cat ears on top, heart-patterned border, loose hearts on the corners */
+.frame {
+  --heart-tile: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-6 -6 36 36'%3E%3Cpath fill='%23fffaf6' fill-opacity='.8' d='M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z'/%3E%3C/svg%3E");
+  position: relative;
+  margin: 3cqi 0 0;
+  width: 70cqi;
+  padding: 4.5cqi;
+  border-radius: 8cqi;
+  background-color: var(--folder);
+  background-image: var(--heart-tile);
+  background-size: 7cqi 7cqi;
+  box-shadow: 0 0.15rem 0.5rem rgba(125, 29, 79, 0.22);
+}
+.ears {
+  position: absolute;
+  left: 0;
+  bottom: calc(100% - 1px);
+  width: 100%;
+  height: auto;
+  display: block;
+}
+.ears .outer { fill: var(--folder); stroke: var(--folder); stroke-width: 4; stroke-linejoin: round; }
+.ears .inner { fill: var(--folder-deep); stroke: var(--folder-deep); stroke-width: 2; stroke-linejoin: round; }
+
+.photo {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  border-radius: 4.5cqi;
+  overflow: hidden;
+  background-image: linear-gradient(160deg, #fff1f4, #fbd9e1);
+  background-color: #fbd9e1;
+  box-shadow: inset 0 0 0 1px rgba(125, 29, 79, 0.15);
+}
+.photo img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 30%;
+  display: block;
+}
+.fh {
+  position: absolute;
+  fill: var(--berry);
+  stroke: var(--paper);
+  stroke-width: 1.4;
+  stroke-linejoin: round;
+  pointer-events: none;
+}
+.fh.a { width: 11cqi; height: 11cqi; right: -5.5cqi; bottom: -4.5cqi; transform: rotate(12deg); }
+.fh.b { width: 7cqi; height: 7cqi; left: -4.5cqi; bottom: 13cqi; fill: var(--gold); transform: rotate(-14deg); }
+.fh.c { width: 5.5cqi; height: 5.5cqi; right: -3.5cqi; top: 9cqi; fill: var(--folder-deep); transform: rotate(14deg); }
+
+.greeting {
+  margin: 0;
+  display: grid;
+  gap: 2.5cqi;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+.hb {
+  display: block;
+  font-size: 5.2cqi;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  padding-bottom: 3cqi;
+  border-bottom: 2px solid var(--gold);
+  justify-self: center;
+  padding-inline: 1cqi;
+}
+.name {
+  display: block;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 11.5cqi;
+  line-height: 1.1;
+  white-space: nowrap;
+  color: var(--berry);
+}
+.from {
+  margin: 0;
+  display: grid;
+  gap: 0;
+  font-family: var(--font-hand);
+  font-weight: 600;
+  line-height: 1.05;
+}
+.from .small { font-size: 6cqi; color: var(--ink); }
+.from .signed { font-size: 11cqi; color: var(--berry); }
+
+/* Greeting pages */
+.h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 10.5cqi;
+  line-height: 1.05;
+  color: var(--berry);
+  padding: 0 3cqi 3cqi;
+  border-bottom: 2px solid var(--gold);
+}
+.letter {
+  display: grid;
+  gap: 3cqi;
+  font-family: var(--font-hand);
+  font-weight: 600;
+  font-size: 7.2cqi;
+  line-height: 1.18;
+  color: var(--ink);
+}
+.letter p { margin: 0; text-wrap: pretty; }
+.letter .lead { font-size: 8.4cqi; color: var(--berry); }
+.sign { margin: 0; font-family: var(--font-hand); font-weight: 600; font-size: 9cqi; line-height: 1; color: var(--berry); }
+.bigheart { width: 20cqi; height: 20cqi; fill: var(--berry); }
+.loveyou { margin: 0; font-family: var(--font-display); font-size: 9.5cqi; line-height: 1.1; color: var(--berry); }
+
+/* The long letter scrolls inside the paper while its photos slide into view. */
+.leaf.reading {
+  display: block;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-color: var(--folder-deep) transparent;
+  scrollbar-width: thin;
+  padding: 1cqi 1cqi 8cqi;
+  text-align: left;
+}
+.reading > .pageno { display: block; margin: 0 0 2.5cqi; text-align: center; }
+.reading .h2 { margin: 0 0 3cqi; text-align: center; }
+.reading .letter {
+  display: block;
+  font-family: var(--font-hand);
+  font-size: 6.2cqi;
+  line-height: 1.2;
+}
+.reading .letter p { margin: 0 0 1em; }
+.reading .letter .lead { font-size: 7.4cqi; }
+.reading .sign { clear: both; padding-top: 1cqi; text-align: right; }
+.memory-photo {
+  float: right;
+  width: 41%;
+  margin: 0.2rem 0 0.75rem 3cqi;
+  padding: 2cqi;
+  border: 1px solid rgba(125, 29, 79, 0.12);
+  border-radius: 3cqi;
+  background: #fff;
+  box-shadow: 0 0.3rem 0.8rem rgba(58, 21, 48, 0.2);
+  opacity: 0;
+  transform: translate3d(36px, 8px, 0) rotate(5deg);
+  transition: opacity 0.55s ease, transform 0.65s cubic-bezier(0.2, 0.75, 0.25, 1);
+}
+.memory-photo.left {
+  float: left;
+  margin: 0.2rem 3cqi 0.75rem 0;
+  transform: translate3d(-36px, 8px, 0) rotate(-5deg);
+}
+.memory-photo.is-visible { opacity: 1; transform: translate3d(0, 0, 0) rotate(0); }
+.memory-photo img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 2cqi;
+  object-fit: cover;
+  animation: photo-float 5s ease-in-out infinite paused;
+}
+.memory-photo.is-visible img { animation-play-state: running; }
+.memory-photo.landscape img { aspect-ratio: 4 / 3; }
+.memory-photo.portrait img { aspect-ratio: 3 / 4; object-position: center 62%; }
+@keyframes photo-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+/* Cover */
+.cover {
+  position: absolute;
+  inset: 14% 0 0 0;
+  z-index: 3;
+  transform-origin: left center;
+  transform-style: preserve-3d;
+  transition: transform 1.1s cubic-bezier(0.6, 0.05, 0.2, 1), opacity 0.4s ease, visibility 0s;
+}
+.is-open .cover {
+  transform: rotateY(-108deg);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: transform 1.1s cubic-bezier(0.6, 0.05, 0.2, 1), opacity 0.5s ease 0.7s, visibility 0s linear 1.2s;
+}
+.face {
+  position: absolute;
+  inset: 0;
+  border-radius: 0.9rem;
+  backface-visibility: hidden;
+}
+.front {
+  background-image: linear-gradient(160deg, #f8c6d2, var(--folder) 55%, #efa9bb);
+  background-color: var(--folder);
+  box-shadow: inset 0 0 0 1px rgba(125, 29, 79, 0.12), 0 -0.15rem 0.6rem rgba(40, 10, 35, 0.12);
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: 1rem;
+  padding: 1.4rem;
+}
+.rear {
+  background: var(--folder-deep);
+  transform: rotateY(180deg);
+}
+.label {
+  justify-self: start;
+  background: var(--paper);
+  color: var(--ink);
+  padding: 0.8rem 1.3rem 0.7rem;
+  border-radius: 0.3rem;
+  transform: rotate(-2deg);
+  box-shadow: 0 0.1rem 0.4rem rgba(40, 10, 35, 0.18);
+  display: grid;
+  line-height: 1;
+}
+.label .kicker {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--berry);
+}
+.label .to { font-family: var(--font-hand); font-weight: 600; font-size: 2.5rem; margin-top: 0.15rem; }
+.emboss { align-self: center; justify-self: center; width: min(46%, 8rem); fill: none; stroke: var(--folder-deep); stroke-width: 1.2; opacity: 0.9; }
+
+.open-btn {
+  appearance: none;
+  border: 0;
+  cursor: pointer;
+  width: 100%;
+  display: grid;
+  gap: 0.1rem;
+  text-align: center;
+  padding: 0.85rem 1rem 0.75rem;
+  border-radius: 0.8rem;
+  background: var(--ink);
+  color: var(--paper);
+  font-family: var(--font-body);
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+.open-btn .act { font-size: 1.1rem; font-weight: 700; letter-spacing: 0.04em; }
+.open-btn .by { font-family: var(--font-hand); font-weight: 600; font-size: 1.4rem; line-height: 1.1; color: var(--folder); }
+.open-btn:hover { transform: translateY(-2px); background: #4e1c43; }
+
+/* Controls under the folder */
+.below { width: 100%; display: grid; gap: 0.9rem; justify-items: center; }
+.countdown {
+  cursor: default;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 0.9rem 1.1rem;
+  border-radius: 0.9rem;
+  border: 2px solid var(--gold);
+  background: var(--paper);
+  color: var(--ink);
+  font: 700 1rem/1.25 var(--font-body);
+  text-align: center;
+}
+.countdown svg { flex: none; width: 1.9rem; height: 1.9rem; fill: none; stroke: var(--berry); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+.nav { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 0.6rem; }
+.btn {
+  appearance: none;
+  cursor: pointer;
+  background: transparent;
+  color: var(--paper);
+  border: 1px solid rgba(255, 250, 246, 0.5);
+  border-radius: 999px;
+  padding: 0.55rem 1.1rem;
+  font: 500 0.92rem var(--font-body);
+  letter-spacing: 0.03em;
+}
+.btn:hover:not(:disabled) { background: rgba(255, 250, 246, 0.12); }
+.btn.solid { background: var(--paper); color: var(--ink); border-color: var(--paper); font-weight: 700; }
+.btn.solid:hover:not(:disabled) { background: #fff; }
+.btn:disabled { opacity: 0.4; cursor: default; }
+.count { width: 100%; text-align: center; font-size: 0.85rem; letter-spacing: 0.08em; color: var(--folder); }
+
+.open-btn:focus-visible, .btn:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
+
+/* Confetti */
+.confetti { position: absolute; inset: 0; z-index: 5; pointer-events: none; }
+.confetti i {
+  position: absolute;
+  left: 50%;
+  top: 38%;
+  width: 0.5rem;
+  height: 0.85rem;
+  border-radius: 1px;
+  opacity: 0;
+  animation: pop 2.4s cubic-bezier(0.2, 0.7, 0.3, 1) var(--delay) forwards;
+}
+@keyframes pop {
+  0% { transform: translate(0, 0) rotate(0); opacity: 1; }
+  30% { transform: translate(var(--x), var(--up)) rotate(calc(var(--r) * 0.4)); opacity: 1; }
+  100% { transform: translate(calc(var(--x) * 1.25), var(--down)) rotate(var(--r)); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cover, .is-open .cover, .paper, .open-btn, .leaf, .leaf.on { transition-duration: 0.01s; transition-delay: 0s; }
+  .memory-photo { transition-duration: 0.01s; }
+  .memory-photo img { animation: none; }
+}
+</style>
+</head>
+<body>
+
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="heart" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></symbol>
+</svg>
+
+<audio id="bg-music" src="bday music/Happy Birthday Song Popular!!!.m4a" preload="auto" loop></audio>
+
+<main class="stage">
+  <section class="scene" id="scene" aria-label="Birthday greetings folder">
+    <div class="folder">
+      <div class="back"></div>
+
+      <div class="paper" id="paper" tabindex="-1">
+        <div class="leaves">
+
+          <!-- Page 1 -->
+          <section class="leaf on" aria-label="Page 1: SORRy sa PICture love">
+            <span class="pageno page-one">Enjoy your day love</span>
+            <figure class="frame">
+              <svg class="ears" viewBox="0 0 100 22" aria-hidden="true">
+                <polygon class="outer" points="9,22 12,4 36,22"/>
+                <polygon class="inner" points="15,20 16,10 27,20"/>
+                <polygon class="outer" points="91,22 88,4 64,22"/>
+                <polygon class="inner" points="85,20 84,10 73,20"/>
+              </svg>
+              <div class="photo">
+                <img src="picture/p1.jpg" alt="Kim on her birthday" fetchpriority="high">
+              </div>
+              <svg class="fh a" aria-hidden="true"><use href="#heart"/></svg>
+              <svg class="fh b" aria-hidden="true"><use href="#heart"/></svg>
+              <svg class="fh c" aria-hidden="true"><use href="#heart"/></svg>
+            </figure>
+            <h1 class="greeting">
+              <span class="hb">Happy Birthday</span>
+              <span class="name">Kim Ybañez</span>
+            </h1>
+            <p class="from"><span class="small">from your lovelove</span><span class="signed">Joshua</span></p>
+          </section>
+
+          <!-- Page 2 -->
+          <section class="leaf reading" id="reading" aria-label="Page 2, birthday letter">
+            <span class="pageno">HaPPY BIRTHDAY MY LOVE</span>
+            <h2 class="h2">My Greetings</h2>
+            <div class="letter">
+              <p class="lead">Heyyyy loveee its your day 🥹🥳🥳you’re already 19 na lab 🥹 pero baby gihapon ka ni wangwang always ❤️❤️ Happy birthday po my loveee iloveyousowmuchhhh🥺❤️❤️ halaaa labb 19 nakaa ouhh🥺❤️ dako na gyud tawn akong gi train ng dragon hihi,</p>
+              <figure class="memory-photo" data-photo>
+                <img src="picture/p2.jpg" alt="Kim and Joshua taking a selfie together" loading="lazy">
+              </figure>
+              <p>then i pray for your 19 era lab nga more blessings pa mo abot nimo lablab specially nato lablab balag daghan kog sala nimo lablab uban gihapon ta sa imong another year lablab ha, di paka ana lab lain nga year lain na pod ng blessing with me ahhh yahaya lablabb uyyy 🥺 bisan onsa paman ka dakong problema lablab kanunay rata mo palag ana my love bisan onsa panang ipa suway sa atong kinabuhe lab ha be thankful gihapon kay god kay ni abot pata ani nga edad lablab then i apil sa wish nimo lab always healthy ang pang lawas po specially to your family po lovelove then maka human school po love gamay nalang pod kuwang sa school lablab mag sunod rata graduate loveeee🥺🥺❤️</p>
+              <figure class="memory-photo left landscape" data-photo>
+                <img src="picture/p3.jpg" alt="Kim and Joshua out together" loading="lazy">
+              </figure>
+              <p>thankful kayko nimo lab hapit nata mag 5 year pila na ka birthday ni labay sakong kimki nga uban me bisan paman daghan daghan kog sayop na himo gi uban gihapon kos imong kinabuhi lablab hihi thank youuu so muchh poo for your kindness love grabi pasensya imong gi hatag dire nako lablab ❤️ your the best part of my life loveloveeeee diko mo hunong og pasalamat sa imong ka maayu dire nako lablab🥺 14 pa edad sakong uyab hangtud ni 19 ahh grabiha nga pasensya lablab nako uyyy nya lain na pod nga tuig sakong lablab nga naa gihapon si joshua hihi ayaw bya ka pul-on sako batasan lab bisan 19 naka lab ha d mag bag o lovelove ang edad ray ma pun an ang ka maldita dili apilan lablab 😭❤️</p>
+              <figure class="memory-photo landscape" data-photo>
+                <img src="picture/p4.jpg" alt="Kim and Joshua smiling together" loading="lazy">
+              </figure>
+              <p>iloveyouuu pooooo and again po loveeee iloveyouuuu iloveyouuuuu sooo muchhhh pooooo and Happy birthday too my future wifeeeeee then Saturday na ang birthday sex lab ha awww kuan diay lab celebration to your birthday 😭😭❤️❤️ iloveyouuu sow muchh anddd Happy Happy birthday loveeee enjoy your day loveloveeee pa abot ra si wangwang mo uli akong kimkim then ganahan ko i suroy tika lab ihatag imo gusto lab ayyy nig Saturday lablabb haaa i want rapooo loveee pili onsa imo want po love maka hatag nako lovelove hihi gift for my kimkim po then date kay wala na dayun pag Monday kay na busy sa kwartoo 😭 Once again, love, happy birthday! ❤️🎂 lab enjoy your dayy and iloveoyusowmuch muahhhhhmuahhh lablab always ni wangnwang❤️🥺🥳</p>
+              <figure class="memory-photo left portrait" data-photo>
+                <img src="picture/p5.jpg" alt="A favorite portrait of Kim and Joshua" loading="lazy">
+              </figure>
+            </div>
+            <p class="sign">— Joshua</p>
+          </section>
+
+          <!-- Page 3 -->
+          <section class="leaf" aria-label="Page 3">
+            <span class="pageno">ILOVEYOUUU</span>
+            <svg class="bigheart" aria-hidden="true"><use href="#heart"/></svg>
+            <h2 class="h2">I WISHHH...</h2>
+            <div class="letter">
+              <p>May every wish you make this year come true. I will be right here, cheering for you.</p>
+            </div>
+            <p class="loveyou">I love you, Kim</p>
+            <p class="sign">your lovelove Joshua</p>
+          </section>
+
+        </div>
+      </div>
+
+      <div class="cover">
+        <div class="face front">
+          <div class="label"><span class="kicker">Greetings</span><span class="to">for Kim</span></div>
+          <svg class="emboss" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+          <button class="open-btn" id="open" type="button" aria-expanded="false" aria-controls="paper">
+            <span class="act">Open Greetings</span>
+            <span class="by">from your lovelove Joshua</span>
+          </button>
+        </div>
+        <div class="face rear" aria-hidden="true"></div>
+      </div>
+    </div>
+    <div class="confetti" id="confetti" aria-hidden="true"></div>
+  </section>
+
+  <div class="below">
+    <div class="countdown" id="countdown" role="status" aria-live="polite" hidden>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 16v-4a8 8 0 0 1 16 0v4"/><rect x="3" y="14" width="4" height="7" rx="1.6"/><rect x="17" y="14" width="4" height="7" rx="1.6"/></svg>
+      <span id="countdown-text">Your birthday greetings open in 5...</span>
+    </div>
+    <div class="nav" id="nav" hidden>
+      <button class="btn" id="back" type="button">‹ Back</button>
+      <button class="btn solid" id="next" type="button">Next ›</button>
+      <span class="count" id="count" aria-live="polite">Page 1 of 3</span>
+    </div>
+  </div>
+</main>
+
+<script>
+(function () {
+  var scene = document.getElementById('scene');
+  var openBtn = document.getElementById('open');
+  var countdown = document.getElementById('countdown');
+  var countdownText = document.getElementById('countdown-text');
+  var nav = document.getElementById('nav');
+  var backBtn = document.getElementById('back');
+  var nextBtn = document.getElementById('next');
+  var count = document.getElementById('count');
+  var paper = document.getElementById('paper');
+  var confetti = document.getElementById('confetti');
+  var leaves = Array.prototype.slice.call(document.querySelectorAll('.leaf'));
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var colors = ['#e9b44c', '#f4b8c6', '#7d1d4f', '#fffaf6', '#e596ab'];
+
+  /* ---------- Birthday song ---------- */
+  var bgMusic = document.getElementById('bg-music');
+
+  function startSong() {
+    var playback = bgMusic.play();
+    if (playback && typeof playback.catch === 'function') playback.catch(function () {});
+  }
+
+  /* ---------- Pages ---------- */
+  var cur = 0;
+  function go(i) {
+    cur = Math.max(0, Math.min(leaves.length - 1, i));
+    if (cur !== 0) countdown.hidden = true;
+    leaves.forEach(function (l, k) { l.classList.toggle('on', k === cur); });
+    count.textContent = 'Page ' + (cur + 1) + ' of ' + leaves.length;
+    backBtn.disabled = cur === 0;
+    nextBtn.disabled = cur === leaves.length - 1;
+  }
+  backBtn.addEventListener('click', function () { go(cur - 1); });
+  nextBtn.addEventListener('click', function () { go(cur + 1); });
+  go(0);
+
+  /* Reveal each memory photo as it enters the letter's scroll window. */
+  var memoryPhotos = Array.prototype.slice.call(document.querySelectorAll('[data-photo]'));
+  if ('IntersectionObserver' in window) {
+    var photoObserver = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add('is-visible');
+        photoObserver.unobserve(entry.target);
+      });
+    }, { root: document.getElementById('reading'), rootMargin: '0px 0px -8% 0px', threshold: 0.05 });
+    memoryPhotos.forEach(function (photo) { photoObserver.observe(photo); });
+  } else {
+    memoryPhotos.forEach(function (photo) { photo.classList.add('is-visible'); });
+  }
+
+  /* ---------- Folder ---------- */
+  paper.inert = true;
+
+  function burst() {
+    var w = scene.clientWidth, h = scene.clientHeight;
+    confetti.textContent = '';
+    for (var i = 0; i < 34; i++) {
+      var p = document.createElement('i');
+      p.style.background = colors[i % colors.length];
+      p.style.setProperty('--x', ((Math.random() - 0.5) * w * 0.95).toFixed(0) + 'px');
+      p.style.setProperty('--up', (-(h * 0.08 + Math.random() * h * 0.25)).toFixed(0) + 'px');
+      p.style.setProperty('--down', (h * (0.45 + Math.random() * 0.45)).toFixed(0) + 'px');
+      p.style.setProperty('--r', ((Math.random() - 0.5) * 900).toFixed(0) + 'deg');
+      p.style.setProperty('--delay', (0.85 + Math.random() * 0.35).toFixed(2) + 's');
+      confetti.appendChild(p);
+    }
+    setTimeout(function () { confetti.textContent = ''; }, 4200);
+  }
+
+  openBtn.addEventListener('click', function () {
+    if (openBtn.disabled) return;
+    openBtn.disabled = true;
+    startSong();
+    scene.classList.add('is-open');
+    openBtn.setAttribute('aria-expanded', 'true');
+    paper.inert = false;
+    countdown.hidden = false;
+    var seconds = 5;
+    countdownText.textContent = 'Your birthday greetings open in ' + seconds + '...';
+    var countdownTimer = window.setInterval(function () {
+      seconds -= 1;
+      if (seconds <= 0) {
+        window.clearInterval(countdownTimer);
+        countdownText.textContent = 'Pakosgi ang music lovelovee! Ayg hilak lab ha click next love mmuahhh.';
+        nav.hidden = false;
+        return;
+      }
+      countdownText.textContent = 'Your birthday greetings open in ' + seconds + '...';
+    }, 1000);
+    setTimeout(function () { paper.focus({ preventScroll: true }); }, reduce ? 0 : 900);
+    if (!reduce) burst();
+  });
+})();
+</script>
+
+</body>
+</html>
