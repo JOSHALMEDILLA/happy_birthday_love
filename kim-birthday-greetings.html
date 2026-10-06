@@ -51,8 +51,9 @@ body {
   padding-top: 1.8rem;
 }
 
+/* Folder size fits the phone screen so the Back / Next buttons stay visible */
 .scene {
-  width: 100%;
+  width: min(100%, calc((100dvh - 13rem) * 0.625));
   aspect-ratio: 5 / 8;
   position: relative;
   perspective: 1600px;
