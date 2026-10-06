@@ -311,6 +311,22 @@ body {
   50% { transform: translateY(-5px); }
 }
 
+/* Mobile: photos sit centered between paragraphs instead of floating beside the text */
+@media (max-width: 600px) {
+  .memory-photo,
+  .memory-photo.left {
+    float: none;
+    clear: both;
+    width: 64%;
+    margin: 0.5rem auto 1.1rem;
+    transform: translate3d(0, 18px, 0) rotate(-2deg);
+  }
+  .memory-photo.left { transform: translate3d(0, 18px, 0) rotate(2deg); }
+  .memory-photo.portrait { width: 54%; }
+  .memory-photo.is-visible { transform: translate3d(0, 0, 0) rotate(-2deg); }
+  .memory-photo.left.is-visible { transform: translate3d(0, 0, 0) rotate(2deg); }
+}
+
 /* Cover */
 .cover {
   position: absolute;
@@ -524,7 +540,7 @@ body {
             <div class="letter">
               <p>May every wish you make this year come true. I will be right here, cheering for you.</p>
             </div>
-            <p class="loveyou">I love you, Kim</p>
+            <p class="loveyou">I love you lovelove❤️🥺</p>
             <p class="sign">your lovelove Joshua</p>
           </section>
 
@@ -585,10 +601,16 @@ body {
 
   /* ---------- Pages ---------- */
   var cur = 0;
+  function resetScroll() {
+    leaves.forEach(function (l) { l.scrollTop = 0; });
+  }
   function go(i) {
     cur = Math.max(0, Math.min(leaves.length - 1, i));
     if (cur !== 0) countdown.hidden = true;
     leaves.forEach(function (l, k) { l.classList.toggle('on', k === cur); });
+    /* Always start a page from its top (the "My Greetings" heading on page 2). */
+    resetScroll();
+    window.requestAnimationFrame(resetScroll);
     count.textContent = 'Page ' + (cur + 1) + ' of ' + leaves.length;
     backBtn.disabled = cur === 0;
     nextBtn.disabled = cur === leaves.length - 1;
