@@ -540,7 +540,7 @@ body {
             <div class="letter">
               <p>May every wish you make this year come true. I will be right here, cheering for you.</p>
             </div>
-            <p class="loveyou">I love you lovelove❤️🥺</p>
+            <p class="loveyou">I love you, Kim</p>
             <p class="sign">your lovelove Joshua</p>
           </section>
 
@@ -601,22 +601,29 @@ body {
 
   /* ---------- Pages ---------- */
   var cur = 0;
-  function resetScroll() {
+  function toTop() {
+    /* Scroll each page's inner content back to its first line */
     leaves.forEach(function (l) { l.scrollTop = 0; });
+    paper.scrollTop = 0;
+    /* Scroll the whole screen back to the top so the folder is fully in view */
+    window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
   }
-  function go(i) {
+  function go(i, fromClick) {
     cur = Math.max(0, Math.min(leaves.length - 1, i));
     if (cur !== 0) countdown.hidden = true;
     leaves.forEach(function (l, k) { l.classList.toggle('on', k === cur); });
-    /* Always start a page from its top (the "My Greetings" heading on page 2). */
-    resetScroll();
-    window.requestAnimationFrame(resetScroll);
     count.textContent = 'Page ' + (cur + 1) + ' of ' + leaves.length;
     backBtn.disabled = cur === 0;
     nextBtn.disabled = cur === leaves.length - 1;
+    toTop();
+    /* Run again after the browser has laid out the new page */
+    window.requestAnimationFrame(toTop);
+    setTimeout(toTop, 60);
   }
-  backBtn.addEventListener('click', function () { go(cur - 1); });
-  nextBtn.addEventListener('click', function () { go(cur + 1); });
+  backBtn.addEventListener('click', function () { go(cur - 1, true); });
+  nextBtn.addEventListener('click', function () { go(cur + 1, true); });
   go(0);
 
   /* Reveal each memory photo as it enters the letter's scroll window. */
